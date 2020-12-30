@@ -1,0 +1,6 @@
+apiVersion: awscloud.vlad.example.com/v1
+kind: S3Bucket
+metadata:
+  name: s3bucket-sample
+spec:
+  bucketName: s3bucket-sample

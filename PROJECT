@@ -1,0 +1,7 @@
+domain: vlad.example.com
+repo: s3controller
+resources:
+- group: awscloud
+  kind: S3Bucket
+  version: v1
+version: "2"

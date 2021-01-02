@@ -3,6 +3,7 @@ module s3controller
 go 1.13
 
 require (
+	github.com/aws/aws-sdk-go v1.36.19
 	github.com/go-logr/logr v0.1.0
 	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.8.1

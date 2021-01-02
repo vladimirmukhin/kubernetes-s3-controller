@@ -25,6 +25,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	awscloudv1 "s3controller/api/v1"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+
+	"fmt"
+	"os"
 )
 
 // S3BucketReconciler reconciles a S3Bucket object
@@ -34,6 +42,10 @@ type S3BucketReconciler struct {
 	Scheme *runtime.Scheme
 }
 
+var (
+	controllerLog = ctrl.Log.WithName("controller")
+)
+
 // +kubebuilder:rbac:groups=awscloud.vlad.example.com,resources=s3buckets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=awscloud.vlad.example.com,resources=s3buckets/status,verbs=get;update;patch
 
@@ -41,7 +53,37 @@ func (r *S3BucketReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	_ = context.Background()
 	_ = r.Log.WithValues("s3bucket", req.NamespacedName)
 
-	// your logic here
+	controllerLog.Info("Running reconciler loop")
+
+	var s3Bucket awscloudv1.S3Bucket
+
+	_ = s3Bucket
+
+	controllerLog.Info("var s3Bucket awscloudv1.S3Bucket")
+
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String("us-east-1"),
+		Credentials: credentials.NewSharedCredentials("", "default"),
+	})
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	svc := s3.New(sess)
+	_ = svc
+
+	listBucketInut := &s3.ListBucketsInput{}
+
+	listBucket, err := svc.ListBuckets(listBucketInut)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	for _, s := range listBucket.Buckets {
+		fmt.Println(*s.Name)
+	}
 
 	return ctrl.Result{}, nil
 }

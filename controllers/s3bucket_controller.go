@@ -63,8 +63,9 @@ func (r *S3BucketReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String("us-east-1"),
-		Credentials: credentials.NewSharedCredentials("", "default"),
+		Credentials: credentials.NewEnvCredentials(),
 	})
+
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

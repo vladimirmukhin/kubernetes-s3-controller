@@ -33,8 +33,6 @@ import (
 
 	"fmt"
 	"os"
-
-	"reflect"
 )
 
 // S3BucketReconciler reconciles a S3Bucket object
@@ -87,17 +85,33 @@ func (r *S3BucketReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		os.Exit(1)
 	}
 
-	// for _, s := range listBucket.Buckets {
-	// 	// fmt.Println(*s.Name)
+	for _, s := range listBucket.Buckets {
 
-	// 	if s.Name == s3Bucket.Spec.BucketName {
-	// 		fmt.Println("Bucket exists")
-	// 	} else {
-	// 		fmt.Println("Need to create a bucket")
-	// 	}
-	// }
+		if *s.Name == s3Bucket.Spec.BucketName {
+			fmt.Println(s3Bucket.Spec.BucketName, " already exists")
+			return ctrl.Result{}, nil
+		}
+	}
 
-	fmt.Println(reflect.TypeOf(listBucket.Buckets))
+	fmt.Println("Creating ", s3Bucket.Spec.BucketName)
+
+	_, err = svc.CreateBucket(&s3.CreateBucketInput{
+		Bucket: aws.String(s3Bucket.Spec.BucketName),
+	})
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	err = svc.WaitUntilBucketExists(&s3.HeadBucketInput{
+		Bucket: aws.String(s3Bucket.Spec.BucketName),
+	})
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Println(s3Bucket.Spec.BucketName, " sucesfully created")
 
 	return ctrl.Result{}, nil
 }

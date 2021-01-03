@@ -9,5 +9,6 @@ kubectl -n s3controller-system delete -f config/samples/awscloud_v1_s3bucket.yam
 kubectl -n s3controller-system apply -f config/samples/awscloud_v1_s3bucket.yaml
 until kubectl -n s3controller-system logs $(kubectl -n s3controller-system get pods | grep s3controller | awk '{print $1}') -c manager --follow
 do
-    echo "Tryin to fetch logs..."
+    sleep 3
+    echo "Trying to fetch logs..."
 done

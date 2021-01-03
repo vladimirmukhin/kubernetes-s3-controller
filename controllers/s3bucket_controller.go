@@ -33,6 +33,8 @@ import (
 
 	"fmt"
 	"os"
+
+	"reflect"
 )
 
 // S3BucketReconciler reconciles a S3Bucket object
@@ -50,16 +52,20 @@ var (
 // +kubebuilder:rbac:groups=awscloud.vlad.example.com,resources=s3buckets/status,verbs=get;update;patch
 
 func (r *S3BucketReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
+	log := r.Log.WithValues("s3bucket", req.NamespacedName)
+	ctx := context.Background()
 	_ = r.Log.WithValues("s3bucket", req.NamespacedName)
-
-	controllerLog.Info("Running reconciler loop")
 
 	var s3Bucket awscloudv1.S3Bucket
 
-	_ = s3Bucket
+	controllerLog.Info("Bucket name should go here 1")
 
-	controllerLog.Info("var s3Bucket awscloudv1.S3Bucket")
+	if err := r.Get(ctx, req.NamespacedName, &s3Bucket); err != nil {
+		log.Error(err, "unable to fetch s3Bucket")
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	controllerLog.Info(s3Bucket.Spec.BucketName)
 
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String("us-east-1"),
@@ -72,7 +78,6 @@ func (r *S3BucketReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	}
 
 	svc := s3.New(sess)
-	_ = svc
 
 	listBucketInut := &s3.ListBucketsInput{}
 
@@ -82,9 +87,17 @@ func (r *S3BucketReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		os.Exit(1)
 	}
 
-	for _, s := range listBucket.Buckets {
-		fmt.Println(*s.Name)
-	}
+	// for _, s := range listBucket.Buckets {
+	// 	// fmt.Println(*s.Name)
+
+	// 	if s.Name == s3Bucket.Spec.BucketName {
+	// 		fmt.Println("Bucket exists")
+	// 	} else {
+	// 		fmt.Println("Need to create a bucket")
+	// 	}
+	// }
+
+	fmt.Println(reflect.TypeOf(listBucket.Buckets))
 
 	return ctrl.Result{}, nil
 }

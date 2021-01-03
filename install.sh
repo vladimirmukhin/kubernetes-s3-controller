@@ -7,3 +7,7 @@ kubectl -n s3controller-system scale deploy s3controller-controller-manager --re
 kubectl -n s3controller-system scale deploy s3controller-controller-manager --replicas 1
 kubectl -n s3controller-system delete -f config/samples/awscloud_v1_s3bucket.yaml
 kubectl -n s3controller-system apply -f config/samples/awscloud_v1_s3bucket.yaml
+until kubectl -n s3controller-system logs $(kubectl -n s3controller-system get pods | grep s3controller | awk '{print $1}') -c manager --follow
+do
+    echo "Tryin to fetch logs..."
+done

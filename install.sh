@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 make install
 make docker-build docker-push IMG=public.ecr.aws/v6p5s4u6/s3controller:latest
 make deploy IMG=public.ecr.aws/v6p5s4u6/s3controller:latest
